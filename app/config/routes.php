@@ -53,3 +53,16 @@ $router->get('/student', 'StudentController::index');
 $router->get('/student/profile', 'StudentController::profile')
        ->middleware('student');
 $router->get('/users', 'UsersController::index');
+
+$route['default_controller'] = 'Product/login';
+
+$route['login'] = 'Product/login';
+$route['authenticate'] = 'Product/authenticate';
+$route['logout'] = 'Product/logout';
+
+$route['products'] = 'Product/index';
+$route['products/create'] = 'Product/create';
+$route['products/store'] = 'Product/store';
+$route['products/edit/(:num)'] = 'Product/edit/$1';
+$route['products/update/(:num)'] = 'Product/update/$1';
+$route['products/delete/(:num)'] = 'Product/delete/$1';
