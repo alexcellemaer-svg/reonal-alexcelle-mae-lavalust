@@ -88,3 +88,5 @@ $router->post('/users/store', 'UsersController::store');
 $router->get('/users/delete/{id}', 'UsersController::delete');
 $router->get('/users/recover/{id}', 'UsersController::recover');
 $router->get('/users/delete-my-account', 'UsersController::delete_my_account');
+$router->get('/users/edit/{id}', 'UsersController::edit');
+$router->post('/users/update/{id}', 'UsersController::update');

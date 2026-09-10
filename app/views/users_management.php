@@ -311,9 +311,15 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
                                 <?= htmlspecialchars($user['username'] ?? ''); ?>
                             </td>
 
-                            <td>
-
+                             <td>
                                 <?php if (!empty($user['id'])): ?>
+                                    <a 
+                                        href="<?= site_url('users/edit/' . $user['id']); ?>" 
+                                        class="action" 
+                                        style="background: #2563eb; margin-right: 5px;"
+                                    >
+                                        Edit
+                                    </a>
 
                                     <a
                                         href="<?= site_url('users/delete/' . $user['id']); ?>"
@@ -322,10 +328,10 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
                                     >
                                         Delete
                                     </a>
-
                                 <?php endif; ?>
-
                             </td>
+
+
 
                         </tr>
 
