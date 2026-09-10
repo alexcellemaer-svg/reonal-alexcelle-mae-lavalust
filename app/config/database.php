@@ -56,13 +56,18 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 |   $database variable.
 |   Example: $database['another_example'] = array('key' => 'value')
 */
-    $db['default'] = array(
-        'hostname' => getenv('DB_HOST') ? getenv('DB_HOST') : 'localhost',
-        'username' => getenv('DB_USER') ? getenv('DB_USER') : 'root',
-        'password' => getenv('DB_PASS') ? getenv('DB_PASS') : '',
-        'database' => getenv('DB_NAME') ? getenv('DB_NAME') : 'lavalust_db',
-        'driver'   => 'mysqli',
-        'charset'  => 'utf8',
-        'collation'=> 'utf8_general_ci',
-        'prefix'   => ''
+    
+
+$database['main'] = array(
+    'driver'   => getenv('DB_DRIVER') ?: 'mysql',
+    'hostname' => getenv('DB_HOST') ?: 'mysql-26f4e158-alexcellemaer-bae3.c.aivencloud.com',
+    'port'     => getenv('DB_PORT') ?: '11823',
+    'username' => getenv('DB_USER') ?: 'avnadmin',
+    'password' => getenv('DB_PASSWORD') ?: '',
+    'database' => getenv('DB_NAME') ?: 'mydb',
+    'charset'  => 'utf8',
+    'dbprefix' => '',
+    'path'     => ''
+
+
 );
