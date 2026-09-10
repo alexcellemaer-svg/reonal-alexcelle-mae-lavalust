@@ -1,113 +1,232 @@
 <?php
+
 defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
-class Product extends Controller {
-
-    public function __construct() {
+class Product extends Controller
+{
+    public function __construct()
+    {
         parent::__construct();
-        $this->call->model('Product_model');
+
+        $this->call->model('UsersModel');
+        $this->call->model('ProductsModel');
         $this->call->library('session');
     }
 
-    // Helper method para harangan ang unauthenticated users
-    private function check_auth() {
-        if (!$this->session->userdata('logged_in')) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTHENTICATION
+    |--------------------------------------------------------------------------
+    */
+
+    private function check_auth()
+    {
+        if (!$this->session->userdata('user_logged_in')) {
             redirect('login');
             exit;
         }
     }
 
-    // --- AUTHENTICATION MECHANISMS ---
-    public function login() {
-        if ($this->session->userdata('logged_in')) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGIN PAGE
+    |--------------------------------------------------------------------------
+    */
+
+    public function login()
+    {
+        // If already logged in, go to products
+        if ($this->session->userdata('user_logged_in')) {
             redirect('products');
+            exit;
         }
-        $this->call->view('auth/login');
+
+        $error = $this->session->flashdata('error');
+
+        $this->call->view('auth/login', [
+            'error' => $error
+        ]);
     }
 
-    public function authenticate() {
-        $username = $this->io->post('username');
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTHENTICATE
+    |--------------------------------------------------------------------------
+    */
+
+    public function authenticate()
+    {
+        $username = trim($this->io->post('username'));
         $password = $this->io->post('password');
 
-        // Simple hardcoded credentials para mabilis kang makapasa bago mag-5PM
-        if ($username === 'admin' && $password === 'password123') {
-            $this->session->set_userdata(['logged_in' => true, 'user' => $username]);
+        $user = $this->UsersModel->check_login(
+            $username,
+            $password
+        );
+
+        if ($user) {
+
+            $this->session->set_userdata([
+                'user_logged_in' => true,
+                'logged_user_id' => $user->id,
+                'username' => $user->username
+            ]);
+
             redirect('products');
-        } else {
-            $this->session->set_flashdata('error', 'Invalid Credentials');
-            redirect('login');
+            exit;
         }
-    }
 
-    public function logout() {
-        $this->session->unset_userdata('logged_in');
-        $this->session->unset_userdata('user');
+        $this->session->set_flashdata(
+            'error',
+            'Invalid username or password.'
+        );
+
         redirect('login');
+        exit;
     }
 
-    // --- CRUD OPERATIONS ---
-    public function index() {
-        $this->check_auth();
-        $data['products'] = $this->Product_model->get_all();
-        $this->call->view('products/index', $data);
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGOUT
+    |--------------------------------------------------------------------------
+    */
+
+    public function logout()
+    {
+        // Remove current authentication session
+        $this->session->unset_userdata('user_logged_in');
+        $this->session->unset_userdata('logged_user_id');
+        $this->session->unset_userdata('username');
+
+        // Also remove the old session keys we previously used
+        $this->session->unset_userdata('logged_in');
+        $this->session->unset_userdata('user_id');
+        $this->session->unset_userdata('user');
+
+        redirect('login');
+        exit;
     }
 
-    public function create() {
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRODUCTS
+    |--------------------------------------------------------------------------
+    */
+
+    public function index()
+    {
         $this->check_auth();
+
+        $products = $this->ProductsModel->get_all();
+
+        $this->call->view('products/index', [
+            'products' => $products
+        ]);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE PRODUCT
+    |--------------------------------------------------------------------------
+    */
+
+    public function create()
+    {
+        $this->check_auth();
+
         $this->call->view('products/create');
     }
 
-    public function store() {
+
+    /*
+    |--------------------------------------------------------------------------
+    | STORE PRODUCT
+    |--------------------------------------------------------------------------
+    */
+
+    public function store()
+    {
         $this->check_auth();
+
         $data = [
-            'product_name' => $this->io->post('product_name'),
-            'description'  => $this->io->post('description'),
-            'price'        => $this->io->post('price'),
-            'quantity'     => $this->io->post('quantity')
+            'product_name' => trim($this->io->post('product_name')),
+            'description' => $this->io->post('description'),
+            'price' => $this->io->post('price'),
+            'quantity' => $this->io->post('quantity')
         ];
-        $this->Product_model->insert($data);
+
+        $this->ProductsModel->insert($data);
+
         redirect('products');
+        exit;
     }
 
-    public function edit($id) {
-        $this->check_auth();
-        $data['product'] = $this->Product_model->get_by_id($id);
-        $this->call->view('products/edit', $data);
+
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT PRODUCT
+    |--------------------------------------------------------------------------
+    */
+
+      public function edit($id)
+  {
+    $this->check_auth();
+
+    $product = $this->ProductsModel->get_by_id($id);
+
+    if (!$product) {
+        redirect('products');
+        exit;
     }
 
-    public function update($id) {
+    $this->call->view('products/edit', [
+        'product' => $product
+    ]);
+   }
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE PRODUCT
+    |--------------------------------------------------------------------------
+    */
+
+    public function update($id)
+    {
         $this->check_auth();
+
         $data = [
-            'product_name' => $this->io->post('product_name'),
-            'description'  => $this->io->post('description'),
-            'price'        => $this->io->post('price'),
-            'quantity'     => $this->io->post('quantity')
+            'product_name' => trim($this->io->post('product_name')),
+            'description' => $this->io->post('description'),
+            'price' => $this->io->post('price'),
+            'quantity' => $this->io->post('quantity')
         ];
-        $this->Product_model->update($id, $data);
+
+        $this->ProductsModel->update($id, $data);
+
         redirect('products');
+        exit;
     }
 
-    public function delete($id) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE PRODUCT
+    |--------------------------------------------------------------------------
+    */
+
+    public function delete($id)
+    {
         $this->check_auth();
-        $this->Product_model->delete($id);
-        redirect('products');
-    }
 
-    // Pang-execute para automatic magawa ang table mo sa Aiven kahit walang DBeaver
-    public function init_db() {
-        $sql = "CREATE TABLE IF NOT EXISTS products (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            product_name VARCHAR(100) NOT NULL,
-            description TEXT,
-            price DECIMAL(10,2) NOT NULL,
-            quantity INT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );";
-        
-        if($this->db->query($sql)) {
-            echo "Table 'products' created successfully sa Aiven!";
-        } else {
-            echo "Connection failed or error occurred.";
-        }
+        $this->ProductsModel->delete($id);
+
+        redirect('products');
+        exit;
     }
 }

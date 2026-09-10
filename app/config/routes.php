@@ -44,25 +44,47 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 */
 /** @var object $router **/
 
-$_SESSION['student_access'] = true;
 
-$router->get('/', 'Welcome::index');
 
-$router->get('/student', 'StudentController::index');
 
-$router->get('/student/profile', 'StudentController::profile')
-       ->middleware('student');
+
+defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
+
+/*
+|--------------------------------------------------------------------------
+| Authentication
+|--------------------------------------------------------------------------
+*/
+
+$router->get('/', 'Product::login');
+
+$router->get('/login', 'Product::login');
+
+$router->post('/authenticate', 'Product::authenticate');
+
+$router->get('/logout', 'Product::logout');
+
+ /*
+|--------------------------------------------------------------------------
+| Products
+|--------------------------------------------------------------------------
+*/
+$router->get('/products', 'Product::index');
+$router->get('/products/create', 'Product::create');
+$router->post('/products/store', 'Product::store');
+$router->get('/products/edit/{id}', 'Product::edit');
+$router->post('/products/update/{id}', 'Product::update');
+$router->get('/products/delete/{id}', 'Product::delete');
+
+
+/*
+|--------------------------------------------------------------------------
+| Users / User Console
+|--------------------------------------------------------------------------
+*/
+
 $router->get('/users', 'UsersController::index');
-
-$route['default_controller'] = 'Product/login';
-
-$route['login'] = 'Product/login';
-$route['authenticate'] = 'Product/authenticate';
-$route['logout'] = 'Product/logout';
-
-$route['products'] = 'Product/index';
-$route['products/create'] = 'Product/create';
-$route['products/store'] = 'Product/store';
-$route['products/edit/(:num)'] = 'Product/edit/$1';
-$route['products/update/(:num)'] = 'Product/update/$1';
-$route['products/delete/(:num)'] = 'Product/delete/$1';
+$router->post('/users/store', 'UsersController::store');
+$router->get('/users/delete/{id}', 'UsersController::delete');
+$router->get('/users/recover/{id}', 'UsersController::recover');
+$router->get('/users/delete-my-account', 'UsersController::delete_my_account');
