@@ -90,3 +90,40 @@ $router->get('/users/recover/{id}', 'UsersController::recover');
 $router->get('/users/delete-my-account', 'UsersController::delete_my_account');
 $router->get('/users/edit/{id}', 'UsersController::edit');
 $router->post('/users/update/{id}', 'UsersController::update');
+
+
+// Migration Routes
+$router->get('create-migration/{migration_class}', 'MigrationController::create_migration');
+$router->get('migrate', 'MigrationController::migrate');
+$router->get('rollback', 'MigrationController::rollback');
+$router->get('rollback-all', 'MigrationController::rollback_all');
+$router->get('refresh', 'MigrationController::refresh');
+$router->get('status', 'MigrationController::status');
+
+// Product API Routes
+
+$router->post('api/login', 'ApiController::login');
+
+$router->post('api/logout', 'ApiController::logout');
+
+$router->post('api/refresh', 'ApiController::refresh');
+
+$router->get('api/products', 'ApiController::products');
+
+$router->post('api/products', 'ApiController::create_product');
+
+$router->put('api/products/{id}', 'ApiController::update_product');
+
+$router->delete('api/products/{id}', 'ApiController::delete_product');
+
+// CORS preflight routes
+
+$router->options('api/login', 'ApiController::cors');
+
+$router->options('api/logout', 'ApiController::cors');
+
+$router->options('api/refresh', 'ApiController::cors');
+
+$router->options('api/products', 'ApiController::cors');
+
+$router->options('api/products/{id}', 'ApiController::cors');
